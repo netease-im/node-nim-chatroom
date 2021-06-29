@@ -99,7 +99,7 @@
                         'copies': [{
                             'destination': '<(PRODUCT_DIR)',
                             'files': [
-                                '<(NIM_SDK_DIR)/framework/nim_chatroom.framework'
+                                'nim_sdk/framework/nim_chatroom.framework'
                             ]
                         }],
                         'defines': [
@@ -129,7 +129,7 @@
                         'include_dirs': [
                             '<(SOURCE_DIR)/src/',
                             '<(NIM_SDK_DIR)/include/',
-                            '<(NIM_SDK_DIR)/framework/nim.framework/Headers/',
+                            '<(NIM_SDK_DIR)/framework/nim_chatroom.framework/Headers/',
                         ],
                         'xcode_settings': {
                             'ARCHS': ['x86_64'],
