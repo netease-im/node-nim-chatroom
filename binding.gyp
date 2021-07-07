@@ -5,7 +5,7 @@
     },
     "targets": [
         {
-            'target_name': 'nim-chatroom',
+            'target_name': 'nim_chatroom',
             'includes': [
             ],
             'include_dirs': [

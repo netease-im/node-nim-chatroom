@@ -1,0 +1,279 @@
+export enum NIMChatRoomOnlineState {
+  kNIMChatRoomOnlineStateOffline = 0, /** < 不在线 */
+  kNIMChatRoomOnlineStateOnline = 1, /** < 在线 */
+}
+
+export enum NIMChatRoomGuestFlag {
+  kNIMChatRoomGuestFlagNoGuest = 0, /** < 非游客 */
+  kNIMChatRoomGuestFlagGuest = 1, /** < 游客 */
+}
+
+export interface ChatRoomInfo {
+  id: number, /** < 聊天室ID */
+  name: string, /** < 聊天室名称 */
+  announcement: string, /** < 聊天室公告 */
+  broadcast_url: string, /** < 视频直播拉流地址 */
+  creator_id: string, /** < 聊天室创建者账号 */
+  valid_flag: boolean, /** < 聊天室有效标记, 1:有效,0:无效 */
+  ext: string, /** < 第三方扩展字段, 必须为可以解析为json的非格式化的字符串, 长度4k */
+  online_count: number, /** < 在线人数 */
+  mute_all: boolean, /** < 聊天室禁言标志 1:禁言,0:非禁言 */
+  queuelevel: number/** <int, 队列管理权限：0:所有人都有权限变更队列，1:只有主播管理员才能操作变更 */
+}
+
+export interface ChatRoomMemberInfo {
+  room_id: number, /** < 聊天室id */
+  account_id: string, /** < 成员账号 */
+  tags: string, /** < 聊天室成员登录时指定的 tag 信息 */
+  type: number, /** < 成员类型, -2:未设置;-1:受限用户; 0:普通;1:创建者;2:管理员;3:临时用户,非固定成员;4:匿名非注册用户,非云信注册用户 */
+  level: number, /** < 成员级别: >=0表示用户开发者可以自定义的级别 */
+  nick: string, /** < 聊天室内的昵称字段,预留字段, 可从Uinfo中取 */
+  avatar: string, /** < 聊天室内的头像,预留字段, 可从Uinfo中取icon */
+  ext: string, /** < 开发者扩展字段, 长度限制2k, 必须为可以解析为json的非格式化的字符串 */
+  notify_tags: string, /** < 聊天室成员登录时指定的 notify_tags 信息 */
+  online_state: NIMChatRoomOnlineState, /** < 成员是否处于在线状态, 仅特殊成员才可能离线, 对游客/匿名用户而言只能是在线 */
+  guest_flag: NIMChatRoomGuestFlag, /** < 是否是普通游客类型,0:不是游客,1:是游客; 游客身份在聊天室中没有持久化, 只有在线时才会有内存状态 */
+  enter_timetag: number, /** < 进入聊天室的时间点,对于离线成员该字段为空 */
+  is_blacklist: boolean, /** < 是黑名单 */
+  is_muted: boolean, /** < 是禁言用户 */
+  valid: boolean, /** < 记录有效标记位 */
+  update_timetag: number, /** < 固定成员的记录更新时间,用于固定成员列表的排列查询 */
+  temp_mute: boolean, /** < 临时禁言 */
+  temp_mute_rest_duration: number /** < 临时禁言的解除时长,单位秒 */
+}
+
+export enum NIMChatRoomEnterStep {
+  kNIMChatRoomEnterStepInit = 1, /** < 本地服务初始化 */
+  kNIMChatRoomEnterStepServerConnecting = 2, /** < 服务器连接中 */
+  kNIMChatRoomEnterStepServerConnectOver = 3, /** < 服务器连接结束,连接结果见error_code */
+  kNIMChatRoomEnterStepRoomAuthing = 4, /** < 聊天室鉴权中 */
+  kNIMChatRoomEnterStepRoomAuthOver = 5, /** < 聊天室鉴权结束,鉴权结果见error_code, error_code非408则需要开发者重新请求聊天室进入信息 */
+}
+
+export interface NIMChatRoomEnterCallback {
+  (roomId: number, step: NIMChatRoomEnterStep, errorCode: number,
+    info: ChatRoomInfo, memberInfo: ChatRoomMemberInfo): void
+}
+
+export interface ChatRoomEnterInfo {
+  nick?: string,
+  avatar?: string,
+  ext?: string,
+  notify_ext?: string,
+  login_tags?: Array<string>,
+  notify_tags?: Array<string>
+}
+
+export enum NIMChatRoomExitReason {
+  kNIMChatRoomExitReasonExit = 0, /** < 自行退出,重登前需要重新请求进入 */
+  kNIMChatRoomExitReasonRoomInvalid = 1, /** < 聊天室已经被解散,重登前需要重新请求进入 */
+  kNIMChatRoomExitReasonKickByManager = 2, /** < 被管理员踢出,重登前需要重新请求进入 */
+  kNIMChatRoomExitReasonKickByMultiSpot = 3, /** < 多端被踢 */
+  kNIMChatRoomExitReasonIllegalState = 4, /** < 当前链接状态异常 */
+  kNIMChatRoomExitReasonBeBlacklisted = 5, /** < 被加黑了 */
+}
+
+export interface NIMChatRoomExitReasonInfo {
+  notify_ext: string /** < 附加信息长度限制 2048 字节 */
+  reason: NIMChatRoomExitReason /** < 退出原因的代码 */
+}
+
+export interface NIMChatRoomExitCallback {
+  roomId: number, /** 退出的聊天室 ID */
+  errorCode: number, /** 退出聊天室的返回代码 */
+  exitInfo: NIMChatRoomExitReasonInfo /** 退出聊天室原因信息 */
+}
+
+export enum NIMChatRoomClientType {
+  kNIMChatRoomClientTypeDefault = 0, /** < default,unset */
+  kNIMChatRoomClientTypeAndroid = 1, /** < android */
+  kNIMChatRoomClientTypeiOS = 2, /** < iOS */
+  kNIMChatRoomClientTypePCWindows = 4, /** < PC */
+  kNIMChatRoomClientTypeWindowsPhone = 8, /** < WindowsPhone */
+  kNIMChatRoomClientTypeWeb = 16, /** < Web */
+  kNIMChatRoomClientTypeRestAPI = 32, /** < RestAPI */
+  kNIMChatRoomClientTypeMacOS = 64, /** < Mac */
+}
+
+export enum NIMChatRoomMsgType {
+  kNIMChatRoomMsgTypeText = 0, /** < 文本类型消息 */
+  kNIMChatRoomMsgTypeImage = 1, /** < 图片类型消息 */
+  kNIMChatRoomMsgTypeAudio = 2, /** < 声音类型消息 */
+  kNIMChatRoomMsgTypeVideo = 3, /** < 视频类型消息 */
+  kNIMChatRoomMsgTypeLocation = 4, /** < 位置类型消息 */
+  kNIMChatRoomMsgTypeNotification = 5, /** < 活动室通知 */
+  kNIMChatRoomMsgTypeFile = 6, /** < 文件类型消息 */
+  kNIMChatRoomMsgTypeRobot = 11, /** < 波特机器人消息 */
+  kNIMChatRoomMsgTypeTips = 10, /** < 提醒类型消息 */
+  kNIMChatRoomMsgTypeCustom = 100, /** < 自定义消息 */
+  kNIMChatRoomMsgTypeUnknown = 1000, /** < 未知类型消息，作为默认值 */
+}
+
+export interface ChatRoomMessageSetting {
+  resend_flag: boolean, /** < 消息重发标记位 */
+  ext: string, /** < 第三方扩展字段, 必须为可以解析为json的非格式化的字符串，长度限制4096 */
+  anti_spam_enable: boolean, /** < 是否需要过易盾反垃圾 */
+  anti_spam_content: string, /** < (可选)开发者自定义的反垃圾字段,长度限制2048 */
+  anti_spam_business_id: string, /** < (可选)用户配置的对某些单条消息另外的反垃圾的业务ID */
+  anti_spam_using_yidun: boolean, /** < int,  (可选) 单条消息是否使用易盾反垃圾 0:(在开通易盾的情况下)不过易盾反垃圾而是通用反垃圾其他都是按照原来的规则 */
+  yidun_anti_cheating: string, /** < (可选)String, 易盾反垃圾增强反作弊专属字段, 限制json，长度限制1024 */
+  history_save: boolean, /** < (可选)是否存云端消息历史，默认存 */
+  high_priority_flag: number, /** < 高优先级消息标记,1:是; 非高优先级消息不带该字段,服务器填写,发送方不需要填写 */
+  env_config: string /** < (可选) 自定义抄送配置 */
+}
+
+export interface ChatRoomMessage {
+  room_id: number, /** < 消息所属的聊天室id,服务器填写,发送方不需要填写 */
+  from_id?: string, /** < 消息发送者的账号,服务器填写,发送方不需要填写 */
+  timetag?: number, /** < 消息发送的时间戳(毫秒),服务器填写,发送方不需要填写 */
+  from_client_type?: NIMChatRoomClientType, /** < 消息发送方客户端类型,服务器填写,发送方不需要填写 */
+  from_nick?: string, /** < 发送方昵称,服务器填写,发送方不需要填写 */
+  from_avator?: string, /** < 发送方头像,服务器填写,发送方不需要填写 */
+  from_ext?: string, /** < 发送方身份扩展字段,服务器填写,发送方不需要填写 */
+  third_party_callback_ext?: string, /** < 第三方回调回来的自定义扩展字段 */
+  notify_tags: string, /** < 发送消息或通知时携带的 notify tags 信息 */
+  msg_type: NIMChatRoomMsgType, /** < 消息类型 */
+  msg_sub_type?: number, /** < 消息的子类型，客户端定义，服务器透传 */
+  msg_attach?: string, /** < 消息内容,长度限制2048,json结构, 文本消息和其他消息保持一致 */
+  client_msg_id: string, /** < 客户端消息id */
+  body?: string, /** < 文本消息内容（聊天室机器人文本消息） */
+  msg_settings: ChatRoomMessageSetting, /** < 消息属性设置 */
+  local_res_path?: string, /** < 媒体文件本地绝对路径（客户端） */
+  res_id?: string /** < 媒体文件ID（客户端） */
+}
+
+export interface NIMChatRoomSendMsgAckCallback {
+  roomId: number,
+  errorCode: number,
+  result: ChatRoomMessage
+}
+
+export interface NIMChatRoomReceiveMsgCallback {
+  roomId: number,
+  message: ChatRoomMessage
+}
+
+export interface NIMChatRoomReceiveMsgsCallback {
+  roomId: number,
+  messages: Array<ChatRoomMessage>
+}
+
+export enum NIMChatRoomNotificationId {
+  kNIMChatRoomNotificationIdMemberIn = 301,         /**< 成员进入聊天室 */
+  kNIMChatRoomNotificationIdMemberExit = 302,       /**< 成员离开聊天室 */
+  kNIMChatRoomNotificationIdAddBlack = 303,         /**< 成员被加黑 */
+  kNIMChatRoomNotificationIdRemoveBlack = 304,      /**< 成员被取消黑名单 */
+  kNIMChatRoomNotificationIdAddMute = 305,          /**< 成员被设置禁言 */
+  kNIMChatRoomNotificationIdRemoveMute = 306,       /**< 成员被取消禁言 */
+  kNIMChatRoomNotificationIdAddManager = 307,       /**< 设置为管理员 */
+  kNIMChatRoomNotificationIdRemoveManager = 308,    /**< 取消管理员 */
+  kNIMChatRoomNotificationIdAddFixed = 309,         /**< 成员设定为固定成员 */
+  kNIMChatRoomNotificationIdRemoveFixed = 310,      /**< 成员取消固定成员 */
+  kNIMChatRoomNotificationIdClosed = 311,           /**< 聊天室被关闭了 */
+  kNIMChatRoomNotificationIdInfoUpdated = 312,      /**< 聊天室信息被更新了 */
+  kNIMChatRoomNotificationIdMemberKicked = 313,     /**< 成员被踢了 */
+  kNIMChatRoomNotificationIdMemberTempMute = 314,   /**< 临时禁言 */
+  kNIMChatRoomNotificationIdMemberTempUnMute = 315, /**< 主动解除临时禁言 */
+  kNIMChatRoomNotificationIdMyRoleUpdated = 316,    /**< 成员主动更新了聊天室内的角色信息(仅指nick/avator/ext) */
+  kNIMChatRoomNotificationIdQueueChanged = 317, /**< 麦序队列中有变更 "ext" : {"_e":"OFFER", "key":"element_key", "content":"element_value"} */
+  kNIMChatRoomNotificationIdRoomMuted = 318,    /**< 聊天室被禁言了,只有管理员可以发言,其他人都处于禁言状态 */
+  kNIMChatRoomNotificationIdRoomDeMuted = 319, /**< 聊天室解除全体禁言状态 */
+  kNIMChatRoomNotificationIdQueueBatchChanged = 320, /**< 麦序队列中有批量变更，发生在元素提交者离开聊天室或者从聊天室异常掉线时 */
+}
+
+export interface ChatRoomNotification {
+  id: NIMChatRoomNotificationId, /**< 通知类型 */
+  data: string /**< 上层开发自定义的事件通知扩展字段, 必须为可以解析为 json 的非格式化的字符串 */
+  operator: string, /**< 操作者的账号accid */
+  opeNick: string, /**< 操作者的账号nick */
+  tarNick: Array<string>, /**< 被操作者的账号nick列表 */
+  target: Array<string>, /**< 被操作者的accid列表 */
+  muteDuration: number, /**<当通知为临时禁言相关时有该值，禁言时代表本次禁言的时长(秒)，解禁时代表本次禁言剩余时长(秒); 当通知为聊天室进入事件，代表临时禁言时长(秒); 其他通知事件不带该数据 */
+  tempMuted: boolean, /**< 当通知为聊天室进入事件才有，代表是否禁言状态 */
+  muteTtl: boolean, /**< 当通知为聊天室进入事件才有，代表是否临时禁言状态 */
+  queueChange: string, /**< 当通知为聊天室队列变更事件才有，代表变更的内容 */
+}
+
+export interface NIMChatRoomNotificationCallback {
+  roomId: number, /** 通知来自哪个聊天室的 ID */
+  notification: ChatRoomNotification /** 通知信息 */
+}
+
+export enum NIMChatRoomLinkCondition {
+  kNIMChatRoomLinkConditionAlive = 0,        /**< 链接正常 */
+  kNIMChatRoomLinkConditionDeadAndRetry = 1, /**< 链接失败,sdk尝试重链 */
+  kNIMChatRoomLinkConditionDead = 2,         /**< 链接失败,开发者需要重新申请聊天室进入信息 */
+}
+
+export interface NIMChatRoomLinkConditionCallback {
+  roomId: number,
+  condition: NIMChatRoomLinkCondition
+}
+
+export enum NIMSDKLogLevel {
+  kNIMSDKLogLevelFatal = 1, /**< SDK Fatal级别Log */
+  kNIMSDKLogLevelError = 2, /**< SDK Error级别Log */
+  kNIMSDKLogLevelWarn = 3,  /**< SDK Warn级别Log */
+  kNIMSDKLogLevelApp = 5,   /**< SDK应用级别Log，正式发布时为了精简sdk log，可采用此级别 */
+  kNIMSDKLogLevelPro = 6,   /**< SDK调试过程级别Log，更加详细，更有利于开发调试 */
+}
+
+export interface ChatRoomIndependentEnterInfo {
+  address: Array<string>,
+  app_data_path: string,
+  log_level: NIMSDKLogLevel,
+  app_key: string,
+  accid: string,
+  token: string,
+  login_tags: Array<string>,
+  notify_tags: string
+}
+
+export interface ChatRoomAnoymityEnterInfo {
+  address: Array<string>,
+  app_data_path: string,
+  log_level: NIMSDKLogLevel,
+  app_key: string,
+  random_id: boolean,
+  login_tags: Array<string>,
+  notify_tags: string
+}
+
+export enum NIMChatRoomGetMemberType {
+  kNIMChatRoomGetMemberTypeSolid = 0, /**< 固定成员,固定成员,包括创建者,管理员,普通等级用户,受限用户(禁言+黑名单) 即使非在线也可以在列表中看到,有数量限制,查询时时间戳使用"updatetime" */
+  kNIMChatRoomGetMemberTypeTemp = 1, /**< 非固定成员,非固定成员,又称临时成员,只有在线时才能在列表中看到,数量无上限,查询时时间戳使用"进入聊天室时间" */
+  kNIMChatRoomGetMemberTypeSolidOL = 2, /**< 在线固定成员 查询时时间戳使用"updatetime" */
+  kNIMChatRoomGetMemberTypeTempOL = 3,  /**< 非固定成员(反向查询) 查询时时间戳使用"进入聊天室时间" */
+}
+
+export interface ChatRoomGetMembersParameters {
+  type: NIMChatRoomGetMemberType,
+  timestampOffset: number,
+  limit: number
+}
+
+export interface GetMemberOnlineCallback {
+  roomId: number,
+  errorCode: number,
+  members: Array<ChatRoomMemberInfo>
+}
+
+export interface NIMChatRoomAPI {
+  Init(appInstallDir: string): boolean
+  RegEnterCb(cb: NIMChatRoomEnterCallback, jsonExtension: string): void
+  RegExitCbEx(cb: NIMChatRoomExitCallback, jsonExtension: string): void
+  RegSendMsgAckCb(cb: NIMChatRoomSendMsgAckCallback, jsonExtension: string): void
+  RegReceiveMsgCb(cb: NIMChatRoomReceiveMsgCallback, jsonExtension: string): void
+  RegReceiveMsgsCb(cb: NIMChatRoomReceiveMsgsCallback, jsonExtension: string): void
+  RegNotificationCb(cb: NIMChatRoomNotificationCallback, jsonExtension: string): void
+  RegLinkConditionCb(cb: NIMChatRoomLinkConditionCallback, jsonExtension: string): void
+  Enter(roomId: number, token: string, info: ChatRoomEnterInfo, jsonExtension: string): void
+  IndependentEnterEx(roomId: number, independentEnterInfo: ChatRoomIndependentEnterInfo, config: string): void
+  AnonymousEnterEx(roomId: number, anoymityEnterInfo: ChatRoomAnoymityEnterInfo, enterInfo: ChatRoomEnterInfo, config: string): void
+  GetLoginState(roomId: number, jsonExtension: string): number
+  SetMsgsBatchReport(batch: boolean, jsonExtension: string): void
+  SendMsg(roomId: number, message: ChatRoomMessage, jsonExtension: string): void
+  GetMembersOnlineAsync(roomId: number, params: ChatRoomGetMembersParameters, cb: GetMemberOnlineCallback, jsonExtension: string): void
+  Exit(roomId: number, jsonExtension: string): void
+  CleanUp(extension: string): void
+}

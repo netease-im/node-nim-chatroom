@@ -1,3 +1,11 @@
 module.exports = {
-  "extends": "standard"
+  root: true,
+  parser: '@typescript-eslint/parser',
+  extends: 'standard',
+  plugins: [
+    // '@typescript-eslint'
+  ],
+  env: {
+    mocha: true
+  }
 }

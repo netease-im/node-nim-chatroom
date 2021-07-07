@@ -1,5 +1,15 @@
+# NIM SDK
+nim_sdk
+temporary
+
+# Exports
+js
+
 # Node-gyp
 build
+
+# Yarn
+yarn.lock
 
 # NPM
 package-lock.json

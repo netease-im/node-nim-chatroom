@@ -2,7 +2,7 @@
   "compilerOptions": {
     "emitDeclarationOnly": true,
     "declaration": true,
-    "declarationDir": "types",
+    "declarationDir": "js",
     "baseUrl": ".",
     "target": "es6",
     "module": "commonjs",

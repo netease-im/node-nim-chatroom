@@ -307,7 +307,7 @@ napi_status nim_chatroom_exit_reason_info_to_obj(
                                 nim_chatroom::kNIMChatRoomEnterKeyNotifyExt),
         nim_napi_new_utf8string(isolate, exit_reason_info.notify_ext_.c_str()));
     obj->Set(isolate->GetCurrentContext(),
-             nim_napi_new_utf8string(isolate, "error_code"),
+             nim_napi_new_utf8string(isolate, "exit_reason"),
              nim_napi_new_int32(isolate, exit_reason_info.code_));
     return napi_ok;
 }
