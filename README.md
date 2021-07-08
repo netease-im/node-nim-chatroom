@@ -50,3 +50,12 @@ Your need to build typescript before run test.
 ```
 npm run test
 ```
+
+## Documentation
+
+You can use jsdoc to automatically generate documentation.
+
+```bash
+npm install -g jsdoc
+jsdoc js -r -R README.md -d docs -t ./node_modules/ink-docstrap/template
+```
