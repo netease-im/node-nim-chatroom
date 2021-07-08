@@ -289,8 +289,22 @@ describe('NIM ChatRoom startup', () => {
         assert.strictEqual(roomId, globalRoomId)
         assert.strictEqual(errorCode, 200)
         assert.strictEqual(element.key, 'queueKey')
-        assert.strictEqual(element.value, 'queueValue')
+        assert.strictEqual(element.value, 'queueNewValue')
         done()
+      })
+    })
+  })
+  describe('#queueDropAsync', () => {
+    it('Drop queu should return 200 and queue list is empty', (done) => {
+      instance.queueDropAsync(globalRoomId, (roomId, errorCode) => {
+        assert.strictEqual(roomId, globalRoomId)
+        assert.strictEqual(errorCode, 200)
+        instance.queueListAsync(globalRoomId, (roomId, errorCode, elements) => {
+          assert.strictEqual(roomId, globalRoomId)
+          assert.strictEqual(errorCode, 200)
+          assert.strictEqual(elements.length, 0)
+          done()
+        })
       })
     })
   })
