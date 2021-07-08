@@ -4,6 +4,7 @@ import {
   NIMChatRoomAPI,
   NIMChatRoomEnterCallback,
   ChatRoomEnterInfo,
+  NIMChatRoomLoginState,
   NIMChatRoomExitCallback,
   ChatRoomMessage,
   NIMChatRoomSendMsgAckCallback,
@@ -86,7 +87,7 @@ class ChatRoom extends ev.EventEmitter {
     this.chatroom.AnonymousEnterEx(roomId, anoymityEnterInfo, enterInfo, config)
   }
 
-  getLoginState (roomId: number): number {
+  getLoginState (roomId: number): NIMChatRoomLoginState {
     return this.chatroom.GetLoginState(roomId, '')
   }
 

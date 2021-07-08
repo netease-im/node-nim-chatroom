@@ -64,6 +64,11 @@ export interface ChatRoomEnterInfo {
   notify_tags?: Array<string>
 }
 
+export enum NIMChatRoomLoginState {
+  kNIMChatRoomLoginStateLogin = 1, /** < 登录状态 */
+  kNIMChatRoomLoginStateUnLogin = 2, /** < 未登录状态 */
+}
+
 export enum NIMChatRoomExitReason {
   kNIMChatRoomExitReasonExit = 0, /** < 自行退出,重登前需要重新请求进入 */
   kNIMChatRoomExitReasonRoomInvalid = 1, /** < 聊天室已经被解散,重登前需要重新请求进入 */
@@ -376,7 +381,7 @@ export interface NIMChatRoomAPI {
   Enter(roomId: number, token: string, info: ChatRoomEnterInfo, extension: string): void
   IndependentEnterEx(roomId: number, independentEnterInfo: ChatRoomIndependentEnterInfo, config: string): void
   AnonymousEnterEx(roomId: number, anoymityEnterInfo: ChatRoomAnoymityEnterInfo, enterInfo: ChatRoomEnterInfo, config: string): void
-  GetLoginState(roomId: number, extension: string): number
+  GetLoginState(roomId: number, extension: string): NIMChatRoomLoginState
   SetMsgsBatchReport(batch: boolean, extension: string): void
   SendMsg(roomId: number, message: ChatRoomMessage, extension: string): void
   GetMembersOnlineAsync(roomId: number, parameter: ChatRoomGetMembersParameters, cb: GetMemberOnlineCallback, extension: string): void
