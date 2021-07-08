@@ -167,7 +167,7 @@ class ChatRoom extends ev.EventEmitter {
     this.chatroom.QueueDropAsync(roomId, cb, '')
   }
 
-  queueBatchUpdateAsync(roomId: number, elements: Array<ChatRoomQueueElement>, needsNotify: boolean, notifyExtension: string, cb: QueueBatchUpdateCallback): void {
+  queueBatchUpdateAsync (roomId: number, elements: Array<ChatRoomQueueElement>, needsNotify: boolean, notifyExtension: string, cb: QueueBatchUpdateCallback): void {
     this.chatroom.QueueBatchUpdateAsync(roomId, elements, needsNotify, notifyExtension, cb, '')
   }
 

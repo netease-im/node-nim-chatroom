@@ -315,20 +315,26 @@ export interface ChatRoomSetMemberAttributeParameters {
 }
 
 export interface MemberInfoChangedCallback {
-  roomId: number,
-  errorCode: number,
-  member: ChatRoomMemberInfo
+  (
+    roomId: number,
+    errorCode: number,
+    member: ChatRoomMemberInfo
+  ): void
 }
 
 export interface GetRoomInfoCallback {
-  roomId: number,
-  errorCode: number,
-  info: ChatRoomInfo
+  (
+    roomId: number,
+    errorCode: number,
+    info: ChatRoomInfo
+  ): void
 }
 
 export interface ChatRoomBaseCallback {
-  roomId: number,
-  errorCode: number
+  (
+    roomId: number,
+    errorCode: number
+  ): void
 }
 
 export enum NIMChatRoomProxyType {

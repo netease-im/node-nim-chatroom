@@ -155,28 +155,141 @@ describe('NIM ChatRoom startup', () => {
   })
   describe.skip('#kickMemberAsync', () => {
     it('Kick member should return 200', (done) => {
-      instance.kickMemberAsync(globalRoomId, 'xs01', 'notify extension...', (roomId, errorCode) => {
-        assert.strictEqual(roomId, globalRoomId)
-        assert.strictEqual(errorCode, 200)
-        done()
-      })
+      instance.kickMemberAsync(globalRoomId, 'xs01', 'notify extension...',
+        (roomId, errorCode) => {
+          assert.strictEqual(roomId, globalRoomId)
+          assert.strictEqual(errorCode, 200)
+          done()
+        })
     })
   })
   describe('#tempMuteMemberAsync', () => {
     it('Temp mute member should return 200', (done) => {
-      instance.tempMuteMemberAsync(globalRoomId, 'dong147', 10, false, '', (roomId, errorCode, member) => {
-        assert.strictEqual(roomId, globalRoomId)
-        assert.strictEqual(errorCode, 200)
-        assert.strictEqual(member.account_id, 'dong147')
-        done()
-      })
+      instance.tempMuteMemberAsync(globalRoomId, 'dong147', 10, false, '',
+        (roomId, errorCode, member) => {
+          assert.strictEqual(roomId, globalRoomId)
+          assert.strictEqual(errorCode, 200)
+          assert.strictEqual(member.account_id, 'dong147')
+          done()
+        })
     })
   })
   describe('#tempMuteMemberByTagAsync', () => {
     it('temp mute member by tag should return 200', (done) => {
-      instance.tempMuteMemberByTagAsync(globalRoomId, 'abc', 10, false, '', (roomId, errorCode, member) => {
+      instance.tempMuteMemberByTagAsync(globalRoomId, 'abc', 10, false, '',
+        (roomId, errorCode, member) => {
+          assert.strictEqual(roomId, globalRoomId)
+          assert.strictEqual(errorCode, 200)
+          done()
+        })
+    })
+  })
+  describe('#updateRoomInfoAsync', () => {
+    it('Update room info should return 200 with new name and announcement', (done) => {
+      const name = `Name updated at ${new Date().getTime().toString()}`
+      const announcement = `Updated at ${new Date().getTime().toString()}`
+      instance.updateRoomInfoAsync(globalRoomId, {
+        name,
+        announcement
+      }, true, 'notify extension...', (roomId, errorCode) => {
+        instance.getInfoAsync(globalRoomId, (roomId, errorCode, info) => {
+          assert.strictEqual(roomId, globalRoomId)
+          assert.strictEqual(errorCode, 200)
+          assert.strictEqual(info.name, name)
+          assert.strictEqual(info.announcement, announcement)
+          done()
+        })
         assert.strictEqual(roomId, globalRoomId)
         assert.strictEqual(errorCode, 200)
+      })
+    })
+  })
+  describe('#updateMyRoomRoleAsync', () => {
+    it('Update my info should return 200 with new nickanme', (done) => {
+      const nick = `Updated at ${new Date().getTime().toString()}`
+      instance.regNotificationCb((roomId, notification) => {
+        assert.strictEqual(roomId, globalRoomId)
+        assert.strictEqual(notification.opeNick, nick)
+        instance.unregChatroomCb()
+        done()
+      })
+      instance.updateMyRoomRoleAsync(globalRoomId, {
+        nick
+      }, true, 'notify extension...', (roomId, errorCode) => {
+        assert.strictEqual(roomId, globalRoomId)
+        assert.strictEqual(errorCode, 200)
+      })
+    })
+  })
+  describe('#queueOfferAsync', () => {
+    it('Queue offer should return 200', (done) => {
+      instance.queueOfferAsync(globalRoomId, {
+        key: 'queueKey',
+        value: 'queueValue'
+      }, (roomId, errorCode) => {
+        assert.strictEqual(roomId, globalRoomId)
+        assert.strictEqual(errorCode, 200)
+        done()
+      })
+    })
+  })
+  describe('#queueListAsync', () => {
+    it('Queue list should return 200 with queue list', (done) => {
+      instance.queueListAsync(globalRoomId, (roomId, errorCode, elements) => {
+        let foundKey = false
+        elements.map(element => {
+          if (element.key === 'queueKey') {
+            foundKey = true
+          }
+          return true
+        })
+        assert.strictEqual(foundKey, true)
+        done()
+      })
+    })
+  })
+  describe('#queueHeaderAsync', () => {
+    it('Query queue header should return 200 with headers', (done) => {
+      instance.queueHeaderAsync(globalRoomId, (roomId, errorCode, element) => {
+        assert.strictEqual(roomId, globalRoomId)
+        assert.strictEqual(errorCode, 200)
+        assert.strictEqual(element.key, 'queueKey')
+        assert.strictEqual(element.value, 'queueValue')
+        done()
+      })
+    })
+  })
+  describe('#queueBatchUpdateAsync', () => {
+    it('Batch update queue should return 200', (done) => {
+      const notExistKey = 'notExistKey'
+      instance.queueBatchUpdateAsync(globalRoomId, [{
+        key: 'queueKey',
+        value: 'queueNewValue'
+      }, {
+        key: notExistKey,
+        value: 'newValue'
+      }], true, 'notify extension...', (roomId, errorCode, notInQueue) => {
+        assert.strictEqual(roomId, globalRoomId)
+        assert.strictEqual(errorCode, 200)
+        let foundKey = false
+        notInQueue.map(key => {
+          if (key === notExistKey) {
+            foundKey = true
+          }
+          return true
+        })
+        assert.strictEqual(foundKey, true)
+        done()
+      })
+    })
+  })
+  describe('#queuePollAsync', () => {
+    it('Queue poll should return 200 with correct element', (done) => {
+      instance.queuePollAsync(globalRoomId, 'queueKey', (roomId, errorCode, element) => {
+        assert.strictEqual(roomId, globalRoomId)
+        assert.strictEqual(errorCode, 200)
+        assert.strictEqual(element.key, 'queueKey')
+        assert.strictEqual(element.value, 'queueValue')
         done()
       })
     })
