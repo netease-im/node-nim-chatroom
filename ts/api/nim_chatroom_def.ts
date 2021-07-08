@@ -79,9 +79,11 @@ export interface NIMChatRoomExitReasonInfo {
 }
 
 export interface NIMChatRoomExitCallback {
-  roomId: number, /** 退出的聊天室 ID */
-  errorCode: number, /** 退出聊天室的返回代码 */
-  exitInfo: NIMChatRoomExitReasonInfo /** 退出聊天室原因信息 */
+  (
+    roomId: number, /** 退出的聊天室 ID */
+    errorCode: number, /** 退出聊天室的返回代码 */
+    exitInfo: NIMChatRoomExitReasonInfo /** 退出聊天室原因信息 */
+  ): void
 }
 
 export enum NIMChatRoomClientType {
@@ -143,19 +145,25 @@ export interface ChatRoomMessage {
 }
 
 export interface NIMChatRoomSendMsgAckCallback {
-  roomId: number,
-  errorCode: number,
-  result: ChatRoomMessage
+  (
+    roomId: number,
+    errorCode: number,
+    result: ChatRoomMessage
+  ): void
 }
 
 export interface NIMChatRoomReceiveMsgCallback {
-  roomId: number,
-  message: ChatRoomMessage
+  (
+    roomId: number,
+    message: ChatRoomMessage
+  ): void
 }
 
 export interface NIMChatRoomReceiveMsgsCallback {
-  roomId: number,
-  messages: Array<ChatRoomMessage>
+  (
+    roomId: number,
+    messages: Array<ChatRoomMessage>
+  ): void
 }
 
 export enum NIMChatRoomNotificationId {
@@ -195,8 +203,10 @@ export interface ChatRoomNotification {
 }
 
 export interface NIMChatRoomNotificationCallback {
-  roomId: number, /** 通知来自哪个聊天室的 ID */
-  notification: ChatRoomNotification /** 通知信息 */
+  (
+    roomId: number, /** 通知来自哪个聊天室的 ID */
+    notification: ChatRoomNotification /** 通知信息 */
+  ): void
 }
 
 export enum NIMChatRoomLinkCondition {
@@ -206,8 +216,10 @@ export enum NIMChatRoomLinkCondition {
 }
 
 export interface NIMChatRoomLinkConditionCallback {
-  roomId: number,
-  condition: NIMChatRoomLinkCondition
+  (
+    roomId: number,
+    condition: NIMChatRoomLinkCondition
+  ): void
 }
 
 export enum NIMSDKLogLevel {
@@ -253,27 +265,138 @@ export interface ChatRoomGetMembersParameters {
 }
 
 export interface GetMemberOnlineCallback {
+  (
+    roomId: number,
+    errorCode: number,
+    members: Array<ChatRoomMemberInfo>
+  ): void
+}
+
+export interface GetMemberCountByTagCallback {
+  (
+    roomId: number,
+    errorCode: number,
+    count: number
+  ): void
+}
+
+export interface ChatRoomGetMsgHistoryParameters {
+  start: number, /** 开始时间,单位毫秒 */
+  limit: number, /** 本次返回的消息数量 */
+  reverse: boolean, /** 按时间正序起查，正序排列,false:按时间逆序起查，逆序排列 */
+  msgtypes: Array<NIMChatRoomMsgType> /** 要查询的消息类型，取值NIMChatRoomMsgType中所枚举类型 */
+}
+
+export interface GetMsgHistoryOnlineCallback {
+  (
+    roomId: number,
+    errorCode: number,
+    messages: Array<ChatRoomMessage>
+  ): void
+}
+
+export enum NIMChatRoomMemberAttribute {
+  kNIMChatRoomMemberAttributeAdminister = 1, /** < 管理员,operator必须是创建者 */
+  kNIMChatRoomMemberAttributeNomalMember = 2, /** < 普通成员,operator必须是创建者或管理员 */
+  kNIMChatRoomMemberAttributeBlackList = -1, /** < 黑名单,operator必须是创建者或管理员 */
+  kNIMChatRoomMemberAttributeMuteList = -2 /** < 禁言,operator必须是创建者或管理员 */
+}
+
+export interface ChatRoomSetMemberAttributeParameters {
+  account_id: string, /** <成员ID */
+  attribute: NIMChatRoomMemberAttribute, /** <身份标识 */
+  opt: boolean, /** <true:是,false:否 */
+  notify_ext: string /** <通知的扩展字段, 必须为可以解析为Json的非格式化的字符串 */
+}
+
+export interface MemberInfoChangedCallback {
   roomId: number,
   errorCode: number,
-  members: Array<ChatRoomMemberInfo>
+  member: ChatRoomMemberInfo
+}
+
+export interface GetRoomInfoCallback {
+  roomId: number,
+  errorCode: number,
+  info: ChatRoomInfo
+}
+
+export interface ChatRoomBaseCallback {
+  roomId: number,
+  errorCode: number
+}
+
+export enum NIMChatRoomProxyType {
+  kNIMChatRoomProxyNone = 0, /** < 不使用代理 */
+  kNIMChatRoomProxyHttp11 = 1, /** < HTTP 1.1 Proxy（暂不支持） */
+  kNIMChatRoomProxySocks4 = 4, /** < Socks4 Proxy */
+  kNIMChatRoomProxySocks4a = 5, /** < Socks4a Proxy */
+  kNIMChatRoomProxySocks5 = 6, /** < Socks5 Proxy */
+}
+
+export interface ChatRoomQueueElement {
+  key: string,
+  value: string
+}
+
+export interface QueuePollCalback {
+  (
+    roomId: number,
+    errorCode: number,
+    element: ChatRoomQueueElement
+  ): void
+}
+
+export interface QueueListCallback {
+  (
+    roomId: number,
+    errorCode: number,
+    elements: Array<ChatRoomQueueElement>
+  ): void
+}
+
+export interface QueueBatchUpdateCallback {
+  (
+    roomId: number,
+    errorCode: number,
+    notInQueue: Array<string>
+  ): void
 }
 
 export interface NIMChatRoomAPI {
   Init(appInstallDir: string): boolean
-  RegEnterCb(cb: NIMChatRoomEnterCallback, jsonExtension: string): void
-  RegExitCbEx(cb: NIMChatRoomExitCallback, jsonExtension: string): void
-  RegSendMsgAckCb(cb: NIMChatRoomSendMsgAckCallback, jsonExtension: string): void
-  RegReceiveMsgCb(cb: NIMChatRoomReceiveMsgCallback, jsonExtension: string): void
-  RegReceiveMsgsCb(cb: NIMChatRoomReceiveMsgsCallback, jsonExtension: string): void
-  RegNotificationCb(cb: NIMChatRoomNotificationCallback, jsonExtension: string): void
-  RegLinkConditionCb(cb: NIMChatRoomLinkConditionCallback, jsonExtension: string): void
-  Enter(roomId: number, token: string, info: ChatRoomEnterInfo, jsonExtension: string): void
+  RegEnterCb(cb: NIMChatRoomEnterCallback, extension: string): void
+  RegExitCbEx(cb: NIMChatRoomExitCallback, extension: string): void
+  RegSendMsgAckCb(cb: NIMChatRoomSendMsgAckCallback, extension: string): void
+  RegReceiveMsgCb(cb: NIMChatRoomReceiveMsgCallback, extension: string): void
+  RegReceiveMsgsCb(cb: NIMChatRoomReceiveMsgsCallback, extension: string): void
+  RegNotificationCb(cb: NIMChatRoomNotificationCallback, extension: string): void
+  RegLinkConditionCb(cb: NIMChatRoomLinkConditionCallback, extension: string): void
+  UnregChatroomCb(): void
+  Enter(roomId: number, token: string, info: ChatRoomEnterInfo, extension: string): void
   IndependentEnterEx(roomId: number, independentEnterInfo: ChatRoomIndependentEnterInfo, config: string): void
   AnonymousEnterEx(roomId: number, anoymityEnterInfo: ChatRoomAnoymityEnterInfo, enterInfo: ChatRoomEnterInfo, config: string): void
-  GetLoginState(roomId: number, jsonExtension: string): number
-  SetMsgsBatchReport(batch: boolean, jsonExtension: string): void
-  SendMsg(roomId: number, message: ChatRoomMessage, jsonExtension: string): void
-  GetMembersOnlineAsync(roomId: number, params: ChatRoomGetMembersParameters, cb: GetMemberOnlineCallback, jsonExtension: string): void
-  Exit(roomId: number, jsonExtension: string): void
+  GetLoginState(roomId: number, extension: string): number
+  SetMsgsBatchReport(batch: boolean, extension: string): void
+  SendMsg(roomId: number, message: ChatRoomMessage, extension: string): void
+  GetMembersOnlineAsync(roomId: number, parameter: ChatRoomGetMembersParameters, cb: GetMemberOnlineCallback, extension: string): void
+  GetMembersCountByTagOnlineAsync(roomId: number, tag: string, cb: GetMemberCountByTagCallback, extension: string): void
+  GetMessageHistoryOnlineAsync(roomId: number, parameter: ChatRoomGetMsgHistoryParameters, cb: GetMsgHistoryOnlineCallback, extension: string): void
+  SetMemberAttributeOnlineAsync(roomId: number, parameter: ChatRoomSetMemberAttributeParameters, cb: MemberInfoChangedCallback, extension: string): void
+  GetInfoAsync(roomId: number, cb: GetRoomInfoCallback, extension: string): void
+  GetMemberInfoByIDsAsync(roomId: number, accountIDs: Array<string>, cb: GetMemberOnlineCallback, extension: string): void
+  KickMemberAsync(roomId: number, kickMemberId: string, notifyExtension: string, cb: ChatRoomBaseCallback, extension: string): void
+  SetProxy(proxyType: NIMChatRoomProxyType, host: string, port: number, username: string, password: string): void
+  TempMuteMemberAsync(roomId: number, accountId: string, duration: number, needsNotify: boolean, notifyExtension: string, cb: MemberInfoChangedCallback, extension: string): void
+  TempMuteMemberByTagAsync(roomId: number, targetTag: string, duration: number, needsNotify: boolean, notifyExtension: string, cb: MemberInfoChangedCallback, extension: string): void
+  UpdateRoomInfoAsync(roomId: number, info: ChatRoomInfo, needsNotify: boolean, notifyExtension: string, cb: ChatRoomBaseCallback, extension: string): void
+  UpdateMyRoomRoleAsync(roomId: number, memberInfo: ChatRoomMemberInfo, needsNotify: boolean, notifyExtension: string, cb: ChatRoomBaseCallback, extension: string): void
+  QueueOfferAsync(roomId: number, element: ChatRoomQueueElement, cb: ChatRoomBaseCallback, extension: string): void
+  QueuePollAsync(roomId: number, elementKey: string, cb: QueuePollCalback, extension: string): void
+  QueueListAsync(roomId: number, cb: QueueListCallback, extension: string): void
+  QueueHeaderAsync(roomId: number, cb: QueuePollCalback, extension: string): void
+  QueueDropAsync(roomId: number, cb: ChatRoomBaseCallback, extension: string): void
+  QueueBatchUpdateAsync(roomId: number, elements: Array<ChatRoomQueueElement>, needsNotify: boolean, notifyExtension: string, cb: QueueBatchUpdateCallback, extension: string): void
+  Exit(roomId: number, extension: string): void
   CleanUp(extension: string): void
 }
