@@ -5,24 +5,27 @@
 #include <unordered_map>
 #include "nim_node_helper.h"
 
-using v8::Persistent;
-using v8::Object;
 using v8::Function;
-namespace nim_node
-{
-class EventHandler
-{
+using v8::Object;
+using v8::Persistent;
+
+namespace nim_node {
+
+class EventHandler {
 private:
     /* data */
 public:
     EventHandler(/* args */){};
     ~EventHandler(){};
 
-    void AddEventHandler(const utf8_string &eventName, Persistent<Object> &obj, Persistent<Function> &callback);
-    int RemoveEventHandler(const utf8_string &eventName);
+    void AddEventHandler(const utf8_string& eventName,
+                         Persistent<Object>& obj,
+                         Persistent<Function>& callback);
+    int RemoveEventHandler(const utf8_string& eventName);
+    void RemoveAllEventhandler();
 
 protected:
     std::unordered_map<utf8_string, BaseCallbackPtr> callbacks_;
 };
-}
-#endif //NIM_NODE_SDK_EVENTHANDLER_H
+}  // namespace nim_node
+#endif  // NIM_NODE_SDK_EVENTHANDLER_H

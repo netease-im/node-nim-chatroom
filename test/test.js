@@ -67,12 +67,10 @@ describe('NIM ChatRoom startup', () => {
         assert.strictEqual(roomId, globalRoomId)
         assert.strictEqual(errorCode, 200)
         assert.notStrictEqual(members.length, 0)
-        /*
-        members.map(member => {
+        /* members.map(member => {
           console.log(member.account_id)
           return true
-        })
-        */
+        }) */
         done()
       })
     })

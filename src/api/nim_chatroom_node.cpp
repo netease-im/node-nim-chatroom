@@ -729,6 +729,7 @@ NIM_SDK_NODE_API_DEF(ChatRoom, QueueDropAsync) {
 }
 NIM_SDK_NODE_API_DEF(ChatRoom, UnregChatroomCb) {
     CHECK_API_FUNC(ChatRoom, 0)
+    ChatRoomEventHandler::GetInstance()->RemoveAllEventhandler();
     nim_chatroom::ChatRoom::UnregChatroomCb();
 }
 
