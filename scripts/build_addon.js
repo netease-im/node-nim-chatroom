@@ -1,15 +1,5 @@
 const { logger } = require('just-task')
 const shell = require('shelljs')
-const path = require('path')
-const fs = require('fs')
-
-let gypPath = `${path.resolve(__dirname, '../node-gyp/bin/node-gyp.js')}`
-
-if (!fs.existsSync(gypPath)) {
-  gypPath = `${path.resolve(__dirname, '../node_modules/node-gyp/bin/node-gyp.js')}`
-  logger.info(`node-gyp path: ${gypPath}`)
-}
-const gypExec = `node ${gypPath}`
 
 module.exports = ({
   target = '8.0.0',
@@ -24,7 +14,7 @@ module.exports = ({
 }) => {
   return new Promise((resolve, reject) => {
     logger.info(`[build] start building [${runtime}-${target}]`)
-    const command = [`${gypExec} configure`]
+    const command = [`npx node-gyp configure`]
     command.push(`--arch=${arch} --msvs_version=${msvcVersion}`)
     if (runtime === 'electron') {
       command.push(`--target=${target} --dist-url=${distUrl}`)
@@ -41,7 +31,7 @@ module.exports = ({
     logger.info('[build] target:', target)
     logger.info('[build] runtime:', runtime)
     if (forceClean) {
-      if (shell.exec(`${gypExec} clean`, { silent }) !== 0) {
+      if (shell.exec(`npx node-gyp clean`, { silent }) !== 0) {
         reject(new Error('failed to clean up build folder.'))
       }
     }
@@ -50,7 +40,7 @@ module.exports = ({
       if (code !== 0) {
         reject(stderr)
       }
-      shell.exec(`${gypExec} build`, { silent }, (code, stdout, stderr) => {
+      shell.exec(`npx node-gyp build`, { silent }, (code, stdout, stderr) => {
         if (code !== 0) {
           logger.error('[build] failed to build C++ addon manually.')
           logger.error(stderr)
